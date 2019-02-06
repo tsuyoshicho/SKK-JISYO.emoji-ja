@@ -1,8 +1,7 @@
+language: ruby
 branches:
   only:
     - master
-script:
-  - bash ./deploy.sh
 before_install:
   - echo $key_secret_password | gpg --passphrase-fd 0 deploy_key.gpg
   - chmod 600 deploy_key
@@ -11,7 +10,13 @@ before_install:
   - ssh-add -l
   - git config --global user.name "Travis-CI"
   - git config --global user.email "travis-ci@example.com"
-
+jobs:
+  include:
+    - stage: cron
+      if: type = cron
+      script:
+        - ruby ./generate.rb
+        - bash ./deploy.sh
 env:
   global:
-    secure: "g2zL5/dTFvmZwH4scOw7Qfj6e1V8ZRoSWsrKPF/LVtb7RGn8ypJw5brbHayBeLBSLAC5ZOgrBig7DWtLNb0uV6kSj2yd2ZT++xRxgt2e4hwCy6fm5QL6/iGeSY+LfxUNV6NWWFEVTod0/ZMPw9PuwMBwbm8DDqh8qwtitdsIjYsicqJ7nuuo7ezird8LGO8Rjp4msVgk2Geq+y3hfLOQ+PWIh2PDC1WEVXAjoDDZ0WuUXqadvFCUmfVG78pQFFi+oaciaf4j2CEwjvWguT8oAs7yx5flaQK+7pbJ588f5lHKfMKaFNsUZDyOe1a/6zWxyVdY546mnwwuVf7uyhr7PkJXutEw4wf3L1fbpENxT1i4raiShHO8K2rcuGsyDOMyp2idi3hDJkQj1G4aVUJH1B4ILK6GwgV4ATuOg7rR/t27/ut3IOpbo4E0YmP5c1DeFdtLf5DegZLqO9auv6Ea0kQn4e/m2mWY3in6Eq+WXj834NAZU8oRwLthz9WAKnC/4fHts0/r/bQt2V4d+9dES2shKwNS01FkwSKqX5CgrAbs2PfCNFZimul4vV7zyReW01jw1Htg7WnKxFQFEIKp3TGMhEctqIBXSILi+gC+TRTUCrPWRtbUc2dDTISSrfkzwhAeLI6OSvKeU9/XC6TvHQEItZK6E/J9bPj81SiMarE="
+    secure: "iC/NmOInhWpSH2B/PhQaOnJ/H0tnq53uL6HwM3m4MlSs3XPt4nl4qvozhKRIjeotJkHEKVb4U1UHeZ370Fmj9ZRtV8pk2aqy72wDfcmoUjgLWTH4ujL7W8sGdvbmjl/bBPilE6pAZ0KIc7VM+e09YMx1R+Q9PNJEWjp/wtfRiZ/VlZtrF8z8M0/ZEhrSb03hB1Z8bRIiXF19ADoLjDLQDbIFP3KSHx1rdBw7tLJBqoNdjRyJYDOH//ZGomZIMmLhd+VvZscS+YMwHIsPxhX9xYUvzB6s/I/mzpYaq+Y1ubjvkrB4/oMBE03R2sh+KL21n/3f5falKJiXgHlEHj2VF3ztNPkYsQ0J55DRGHnIY6qJbsTLmRY+K/B2sptApjzNFw9tWaNIF/Ub48lAt4nIL14ltMRsNoJbNclqGr8k6HwKKaUFLEDnH6iq5DqKaFKQGlsWrTmOXixihC6Jn//t0UxlpO6jiCZVOqDGxFdJFAT603pStQHXhM8DprqlaoTcC+YmRpoX0XiRSWIAzy8xTxHlczRiwRqlXOr/SP9BovL/4sGrTbORWpSF24xvcDQ5OXjfk7TabfXA6gMvs9CEbf5XP5JqsyCsKbLJRbeXX6zyU6wGCe7Epd36D96wMdUBLzEZc47aImxTea2z0teeuYrbnD+nLTwa1yXHbZE+UdE="

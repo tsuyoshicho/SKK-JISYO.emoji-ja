@@ -4,8 +4,10 @@ set -e # Exit with nonzero exit code if anything fails
 # based on https://qiita.com/youcune/items/fcfb4ad3d7c1edf9dc96
 set -u # Undefined variable use error
 
+## Cron Job/master branch Only
+
 # SOURCE_BRANCH="master"
-# SOURCE_BRANCH=${TRAVIS_BRANCH}
+SOURCE_BRANCH=${TRAVIS_BRANCH}
 TARGET_BRANCH="gh-pages"
 
 # Save some useful information
@@ -28,18 +30,45 @@ cd ..
 
 # File Deploy
 cp README.md out/
+cp SKK-JISYO.emoji-ja.utf8 out/
 
 # Now let's go have some fun with the cloned repo
 cd out
 
 # If there are no changes (e.g. this is a README update) then just bail.
-if [ -z `git diff --exit-code` ]; then
-    echo "No changes to the spec on this push; exiting."
-    exit 0
+if `git diff --quiet --exit-code`; then
+  echo "No changes on gh-pages; exiting."
+  exit 0
+else
+  # Commit the "changes", i.e. the new version.
+  # The delta will show diffs between new and old versions.
+  git add .
+  git commit -m "Deploy to GitHub Pages: ${SHA} / Publishing site on `date "+%Y-%m-%d %H:%M:%S"`"
+  git push -f git@github.com:${TRAVIS_REPO_SLUG}.git $TARGET_BRANCH
 fi
 
-# Commit the "changes", i.e. the new version.
-# The delta will show diffs between new and old versions.
-git add .
-git commit -m "Deploy to GitHub Pages: ${SHA} / Publishing site on `date "+%Y-%m-%d %H:%M:%S"`"
-git push -f git@github.com:${TRAVIS_REPO_SLUG}.git $TARGET_BRANCH
+cd ..
+
+# update $SOURCE_BRANCH branch
+rm -rf out
+
+# If there are no changes (e.g. this is a README update) then just bail.
+if `git diff --quiet --exit-code`; then
+  echo "No changes on master; exiting."
+  exit 0
+else
+  git remote set-url origin git@github.com:${TRAVIS_REPO_SLUG}.git
+
+  git add -u .
+
+  git stash push
+  git checkout $SOURCE_BRANCH
+  git stash pop
+
+  git add -u .
+
+  git commit -m "Update jisyo at cron job / `date "+%Y-%m-%d %H:%M:%S"`"
+  git push
+fi
+
+# EOF
