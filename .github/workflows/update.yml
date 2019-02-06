@@ -1,0 +1,49 @@
+name: "Update jisyo"
+on:
+  push:
+    branches:
+      - master
+  schedule:
+  - cron: "15 14 1 * *"
+
+jobs:
+  dict:
+    name: Dictionary update process
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup ruby
+        uses: actions/setup-ruby@v1
+      - name: Generate dictionary
+        run: ruby ./generate.rb
+      - name: Get current time
+        uses: 1466587594/get-current-time@v2
+        id: current-time
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v4
+        with:
+          author_name: '${{ github.actor }}'
+          author_email: '${{ github.actor }}@users.noreply.github.com'
+          message: 'Update jisyo at ${{ github.event_name }} / ${{ steps.current-time.outputs.ISOTime }}'
+          add: 'skk-jisyo.imas*'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy:
+    name: Dictionary deploy process
+    needs: dict
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - name: Deploy gh-pages
+        uses: JamesIves/github-pages-deploy-action@releases/v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BASE_BRANCH: master
+          BRANCH: gh-pages
+          FOLDER: build
+          BUILD_SCRIPT: bash ./deploy.sh
