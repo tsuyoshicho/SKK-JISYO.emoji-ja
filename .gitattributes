@@ -1,0 +1,15 @@
+# -*- coding: utf-8 -*-
+# vim:fenc=utf-8 ff=unix
+
+# git system files
+.gitattributes eol=lf
+.gitignore     eol=lf
+
+.travis.yml    eol=lf
+deploy.sh      eol=lf
+Makefile       eol=lf
+
+deploy_key.enc binnary
+
+*.md           text
+
