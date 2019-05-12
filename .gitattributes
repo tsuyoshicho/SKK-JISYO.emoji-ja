@@ -9,7 +9,7 @@
 deploy.sh      eol=lf
 Makefile       eol=lf
 
-deploy_key.enc binnary
+deploy_key.gpg binnary
 
 *.md           text
 
